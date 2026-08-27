@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  background-color: #f5f6f2;
+  color: #1c2321;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Visible keyboard focus everywhere - not just mouse users */
+:focus-visible {
+  outline: 2px solid #2b4570;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
