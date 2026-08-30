@@ -4,17 +4,7 @@ import { enablePushReminders } from "./push";
 import TodoForm from "./components/TodoForm";
 import TodoCard from "./components/TodoCard";
 
-const DAY_MS = 24 * 60 * 60 * 1000;
 
-// Sort key: overdue/due-today entries first, then soonest upcoming, done last.
-function urgencyScore(todo) {
-  if (todo.done) return Infinity;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const target = todo.day7ReminderSent ? null : new Date(todo.day4ReminderSent ? todo.day7Date : todo.day4Date);
-  if (!target) return Infinity;
-  return Math.round((target - today) / DAY_MS);
-}
 
 export default function App() {
   const [todos, setTodos] = useState([]);
@@ -73,7 +63,7 @@ export default function App() {
   };
 
   const sortedTodos = useMemo(
-    () => [...todos].sort((a, b) => urgencyScore(a) - urgencyScore(b)),
+    () => [...todos].sort((a, b) => new Date(b.addedDate) - new Date(a.addedDate)),
     [todos]
   );
 
