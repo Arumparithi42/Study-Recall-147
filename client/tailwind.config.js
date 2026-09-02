@@ -1,18 +1,19 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{js,jsx}"],
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
-        paper: "#F5F6F2",
-        surface: "#FFFFFF",
-        ink: "#1C2321",
-        "ink-soft": "#5B6660",
-        line: "#E1E4DD",
-        added: "#2B4570",
-        due: "#E8A33D",
-        overdue: "#C0533C",
-        done: "#6B8F71",
+        paper: "var(--color-paper)",
+        surface: "var(--color-surface)",
+        ink: "var(--color-ink)",
+        "ink-soft": "var(--color-ink-soft)",
+        line: "var(--color-line)",
+        added: "var(--color-added)",
+        due: "var(--color-due)",
+        overdue: "var(--color-overdue)",
+        done: "var(--color-done)",
       },
       fontFamily: {
         display: ["Fraunces", "serif"],

@@ -4,13 +4,25 @@ import { enablePushReminders } from "./push";
 import TodoForm from "./components/TodoForm";
 import TodoCard from "./components/TodoCard";
 
-
+function getInitialTheme() {
+  const saved = localStorage.getItem("theme");
+  if (saved === "dark" || saved === "light") return saved;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
 
 export default function App() {
   const [todos, setTodos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [pushState, setPushState] = useState("idle"); // idle | enabling | on | error
+  const [theme, setTheme] = useState(getInitialTheme);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", theme === "dark");
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => setTheme((t) => (t === "dark" ? "light" : "dark"));
 
   const load = async () => {
     try {
@@ -70,10 +82,22 @@ export default function App() {
   return (
     <div className="min-h-screen bg-paper">
       <header className="px-4 sm:px-6 pt-8 pb-6 max-w-2xl mx-auto">
-        <p className="font-body text-xs tracking-widest uppercase text-added font-semibold">
-          The 1-4-7 rule
-        </p>
-        <h1 className="font-display text-3xl font-bold text-ink mt-1">Recall</h1>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="font-body text-xs tracking-widest uppercase text-added font-semibold">
+              The 1-4-7 rule
+            </p>
+            <h1 className="font-display text-3xl font-bold text-ink mt-1">Recall</h1>
+          </div>
+          <button
+            onClick={toggleTheme}
+            aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            className="shrink-0 w-10 h-10 rounded-full border border-line flex items-center justify-center text-ink-soft hover:text-added hover:border-added transition-colors"
+          >
+            {theme === "dark" ? "🌙" : "☀️"}
+          </button>
+        </div>
         <p className="font-body text-sm text-ink-soft mt-2">
           Log what you studied. Come back on day 4, then day 7 - that's what makes it stick.
         </p>
