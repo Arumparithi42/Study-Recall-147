@@ -14,7 +14,8 @@ const todoSchema = new Schema(
     addedDate: { type: Date, required: true, immutable: true },
     day4Date: { type: Date, required: true, immutable: true },
     day7Date: { type: Date, required: true, immutable: true },
-
+    day4Checked: { type: Boolean, default: false },
+    day7Checked: { type: Boolean, default: false },
     done: { type: Boolean, default: false },
 
     // Prevents the cron job from sending the same reminder twice.

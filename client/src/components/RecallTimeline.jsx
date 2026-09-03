@@ -1,58 +1,106 @@
-const DAY_MS = 24 * 60 * 60 * 1000;
-
 function formatShort(date) {
   return new Date(date).toLocaleDateString(undefined, { day: "numeric", month: "short" });
 }
 
-// Returns "upcoming" | "due" | "overdue" | "cleared" for a single checkpoint date.
-function nodeStatus(date, done, todayStart) {
-  if (done) return "cleared";
-  const nodeStart = new Date(date);
-  nodeStart.setHours(0, 0, 0, 0);
-  const diffDays = Math.round((nodeStart - todayStart) / DAY_MS);
-  if (diffDays > 0) return "upcoming";
-  if (diffDays === 0) return "due";
-  return "overdue";
+function isDue(date) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const target = new Date(date);
+  target.setHours(0, 0, 0, 0);
+  return today >= target;
 }
 
-const NODE_STYLES = {
-  cleared: { dot: "bg-done border-done", label: "text-done" },
-  due: { dot: "bg-due border-due animate-pulse", label: "text-due font-semibold" },
-  overdue: { dot: "bg-overdue border-overdue", label: "text-overdue font-semibold" },
-  upcoming: { dot: "bg-transparent border-line", label: "text-ink-soft" },
-  passedAdded: { dot: "bg-added border-added", label: "text-ink-soft" },
-};
+function CircleButton({ checked, clickable, onClick, title }) {
+  const base = "block w-4 h-4 rounded-full border-2 transition-colors";
+  const color = checked
+    ? "bg-done border-done"
+    : clickable
+    ? "bg-overdue/20 border-overdue"
+    : "bg-transparent border-line";
 
-export default function RecallTimeline({ addedDate, day4Date, day7Date, done }) {
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
+  if (!clickable) {
+    return <span className={`${base} ${color}`} title={title} />;
+  }
 
-  const day4Status = nodeStatus(day4Date, done, todayStart);
-  const day7Status = nodeStatus(day7Date, done, todayStart);
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={title}
+      aria-pressed={checked}
+      className={`${base} ${color} ${checked ? "" : "hover:bg-overdue/40"} cursor-pointer`}
+    />
+  );
+}
+
+export default function RecallTimeline({
+  addedDate,
+  day4Date,
+  day7Date,
+  day4Checked,
+  day7Checked,
+  onToggleCheckpoint,
+}) {
+  const day4Clickable = isDue(day4Date);
+  const day7Clickable = isDue(day7Date);
 
   const nodes = [
-    { key: "added", label: "Added", date: addedDate, style: NODE_STYLES.passedAdded },
-    { key: "day4", label: "Day 4", date: day4Date, style: NODE_STYLES[day4Status] },
-    { key: "day7", label: "Day 7", date: day7Date, style: NODE_STYLES[day7Status] },
+    {
+      key: "added",
+      label: "Added",
+      date: addedDate,
+      node: <CircleButton checked clickable={false} title={`Added: ${formatShort(addedDate)}`} />,
+    },
+    {
+      key: "day4",
+      label: "Day 4",
+      date: day4Date,
+      node: (
+        <CircleButton
+          checked={day4Checked}
+          clickable={day4Clickable}
+          onClick={() => onToggleCheckpoint("day4")}
+          title={
+            day4Checked
+              ? "Revised - tap to undo"
+              : day4Clickable
+              ? "Tap once you've revised this"
+              : `Not due until ${formatShort(day4Date)}`
+          }
+        />
+      ),
+    },
+    {
+      key: "day7",
+      label: "Day 7",
+      date: day7Date,
+      node: (
+        <CircleButton
+          checked={day7Checked}
+          clickable={day7Clickable}
+          onClick={() => onToggleCheckpoint("day7")}
+          title={
+            day7Checked
+              ? "Revised - tap to undo"
+              : day7Clickable
+              ? "Tap once you've revised this"
+              : `Not due until ${formatShort(day7Date)}`
+          }
+        />
+      ),
+    },
   ];
-
-  const lineFillClass = done ? "bg-done" : "bg-line";
 
   return (
     <div className="flex items-start w-full max-w-xs" aria-label="Recall timeline">
-      {nodes.map((node, i) => (
-        <div key={node.key} className="flex items-center flex-1 last:flex-none">
+      {nodes.map((n, i) => (
+        <div key={n.key} className="flex items-center flex-1 last:flex-none">
           <div className="flex flex-col items-center gap-1 shrink-0">
-            <span
-              className={`block w-3 h-3 rounded-full border-2 ${node.style.dot}`}
-              title={`${node.label}: ${formatShort(node.date)}`}
-            />
-            <span className={`text-[11px] font-body ${node.style.label}`}>{node.label}</span>
-            <span className="text-[10px] font-body text-ink-soft/70">{formatShort(node.date)}</span>
+            {n.node}
+            <span className="text-[11px] font-body text-ink-soft">{n.label}</span>
+            <span className="text-[10px] font-body text-ink-soft/70">{formatShort(n.date)}</span>
           </div>
-          {i < nodes.length - 1 && (
-            <span className={`h-[2px] flex-1 mx-1 mt-[-18px] ${lineFillClass}`} />
-          )}
+          {i < nodes.length - 1 && <span className="h-[2px] flex-1 mx-1 mt-[-20px] bg-line" />}
         </div>
       ))}
     </div>

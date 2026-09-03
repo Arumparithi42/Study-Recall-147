@@ -24,4 +24,7 @@ export const api = {
   getVapidKey: () => request("/push/vapid-public-key"),
   subscribePush: (subscription) =>
     request("/push/subscribe", { method: "POST", body: JSON.stringify(subscription) }),
+  setCheckpoint: (id, node) =>
+  request(`/todos/${id}/checkpoint`, { method: "PATCH", body: JSON.stringify({ node }) }),
 };
+

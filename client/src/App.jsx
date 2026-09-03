@@ -52,7 +52,14 @@ export default function App() {
     const todo = await api.updateTodo(id, data);
     setTodos((prev) => prev.map((t) => (t._id === id ? todo : t)));
   };
-
+  const handleToggleCheckpoint = async (id, node) => {
+  try {
+    const todo = await api.setCheckpoint(id, node);
+    setTodos((prev) => prev.map((t) => (t._id === id ? todo : t)));
+  } catch (err) {
+    setError(err.message);
+  }
+};
   const handleSetDone = async (id, done) => {
     const todo = await api.setDone(id, done);
     setTodos((prev) => prev.map((t) => (t._id === id ? todo : t)));
@@ -132,12 +139,13 @@ export default function App() {
           <ul className="flex flex-col gap-3">
             {sortedTodos.map((todo) => (
               <TodoCard
-                key={todo._id}
-                todo={todo}
-                onUpdate={handleUpdate}
-                onSetDone={handleSetDone}
-                onRemove={handleRemove}
-              />
+  key={todo._id}
+  todo={todo}
+  onUpdate={handleUpdate}
+  onSetDone={handleSetDone}
+  onRemove={handleRemove}
+  onToggleCheckpoint={handleToggleCheckpoint}
+/>
             ))}
           </ul>
         )}

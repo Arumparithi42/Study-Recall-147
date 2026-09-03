@@ -1,7 +1,7 @@
 import { useState } from "react";
 import RecallTimeline from "./RecallTimeline";
 
-export default function TodoCard({ todo, onUpdate, onSetDone, onRemove }) {
+export default function TodoCard({ todo, onUpdate, onSetDone, onRemove, onToggleCheckpoint }) {
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(todo.title);
   const [description, setDescription] = useState(todo.description);
@@ -72,11 +72,13 @@ export default function TodoCard({ todo, onUpdate, onSetDone, onRemove }) {
       )}
 
       <RecallTimeline
-        addedDate={todo.addedDate}
-        day4Date={todo.day4Date}
-        day7Date={todo.day7Date}
-        done={todo.done}
-      />
+  addedDate={todo.addedDate}
+  day4Date={todo.day4Date}
+  day7Date={todo.day7Date}
+  day4Checked={todo.day4Checked}
+  day7Checked={todo.day7Checked}
+  onToggleCheckpoint={(node) => onToggleCheckpoint(todo._id, node)}
+/>
 
       <div className="flex flex-wrap gap-2 pt-1">
         {editing ? (
