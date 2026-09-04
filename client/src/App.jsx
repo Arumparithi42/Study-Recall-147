@@ -37,11 +37,23 @@ export default function App() {
   };
 
   useEffect(() => {
-    load();
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/sw.js").catch(() => {});
-    }
-  }, []);
+  load();
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/sw.js").catch(() => {});
+  }
+
+  // Ask for notification permission automatically on first load instead
+  // of requiring a click. The browser still shows its own native
+  // Allow/Block prompt - that part can't be skipped or done silently.
+  if ("Notification" in window && Notification.permission !== "denied") {
+    setPushState("enabling");
+    enablePushReminders()
+      .then(() => setPushState("on"))
+      .catch(() => setPushState("error"));
+  } else {
+    setPushState("error");
+  }
+}, []);
 
   const handleCreate = async (data) => {
     const todo = await api.createTodo(data);
@@ -68,17 +80,6 @@ export default function App() {
   const handleRemove = async (id) => {
     await api.removeTodo(id);
     setTodos((prev) => prev.filter((t) => t._id !== id));
-  };
-
-  const handleEnablePush = async () => {
-    setPushState("enabling");
-    try {
-      await enablePushReminders();
-      setPushState("on");
-    } catch (err) {
-      setError(err.message);
-      setPushState("error");
-    }
   };
 
   const sortedTodos = useMemo(
@@ -109,14 +110,11 @@ export default function App() {
           Log what you studied. Come back on day 4, then day 7 - that's what makes it stick.
         </p>
 
-        {pushState !== "on" && (
-          <button
-            onClick={handleEnablePush}
-            disabled={pushState === "enabling"}
-            className="mt-4 text-sm font-body font-medium text-added border border-added/30 bg-added/5 rounded-lg px-3 py-2 disabled:opacity-50"
-          >
-            {pushState === "enabling" ? "Enabling reminders…" : "Turn on 6pm reminders"}
-          </button>
+        {pushState === "error" && (
+          <p className="font-body text-xs text-ink-soft mt-3">
+            Notifications are off in your browser, so 6pm reminders won't reach you here. You
+            can turn them on in your browser/site settings.
+          </p>
         )}
       </header>
 
