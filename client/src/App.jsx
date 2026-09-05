@@ -16,6 +16,7 @@ export default function App() {
   const [error, setError] = useState("");
   const [pushState, setPushState] = useState("idle"); // idle | enabling | on | error
   const [theme, setTheme] = useState(getInitialTheme);
+  const [sortOrder, setSortOrder] = useState("newest"); // "newest" | "oldest"
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
@@ -82,10 +83,12 @@ export default function App() {
     setTodos((prev) => prev.filter((t) => t._id !== id));
   };
 
-  const sortedTodos = useMemo(
-    () => [...todos].sort((a, b) => new Date(b.addedDate) - new Date(a.addedDate)),
-    [todos]
-  );
+  const sortedTodos = useMemo(() => {
+    const direction = sortOrder === "newest" ? -1 : 1;
+    return [...todos].sort(
+      (a, b) => direction * (new Date(a.addedDate) - new Date(b.addedDate))
+    );
+  }, [todos, sortOrder]);
 
   return (
     <div className="min-h-screen bg-paper">
@@ -126,7 +129,31 @@ export default function App() {
             {error}
           </p>
         )}
-
+        {todos.length > 0 && (
+          <div className="flex items-center justify-end gap-1 -mb-1">
+            <span className="font-body text-xs text-ink-soft mr-1">Sort:</span>
+            <button
+              onClick={() => setSortOrder("newest")}
+              className={`text-xs font-body font-medium px-2.5 py-1 rounded-full transition-colors ${
+                sortOrder === "newest"
+                  ? "bg-added text-white"
+                  : "border border-line text-ink-soft"
+              }`}
+            >
+              Newest first
+            </button>
+            <button
+              onClick={() => setSortOrder("oldest")}
+              className={`text-xs font-body font-medium px-2.5 py-1 rounded-full transition-colors ${
+                sortOrder === "oldest"
+                  ? "bg-added text-white"
+                  : "border border-line text-ink-soft"
+              }`}
+            >
+              Oldest first
+            </button>
+          </div>
+        )}
         {loading ? (
           <p className="font-body text-sm text-ink-soft text-center py-8">Loading your entries…</p>
         ) : sortedTodos.length === 0 ? (
