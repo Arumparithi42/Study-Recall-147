@@ -70,6 +70,13 @@ router.patch("/:id/checkpoint", async (req, res) => {
 
   const field = node === "day4" ? "day4Checked" : "day7Checked";
   todo[field] = !todo[field];
+
+  // The 1-4-7 rule is complete once both revision checkpoints are ticked
+  // (day 1 is always "done" implicitly) - auto-complete the todo then.
+  if (todo.day4Checked && todo.day7Checked) {
+    todo.done = true;
+  }
+
   await todo.save();
   res.json(todo);
 });
