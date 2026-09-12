@@ -85,9 +85,12 @@ export default function App() {
 
   const sortedTodos = useMemo(() => {
     const direction = sortOrder === "newest" ? -1 : 1;
-    return [...todos].sort(
-      (a, b) => direction * (new Date(a.addedDate) - new Date(b.addedDate))
-    );
+    const byDate = (a, b) => direction * (new Date(a.addedDate) - new Date(b.addedDate));
+
+    const active = todos.filter((t) => !t.done).sort(byDate);
+    const done = todos.filter((t) => t.done).sort(byDate);
+
+    return [...active, ...done];
   }, [todos, sortOrder]);
 
   return (
