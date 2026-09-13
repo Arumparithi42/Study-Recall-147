@@ -21,6 +21,10 @@ const todoSchema = new Schema(
     // Prevents the cron job from sending the same reminder twice.
     day4ReminderSent: { type: Boolean, default: false },
     day7ReminderSent: { type: Boolean, default: false },
+    // Tracks the last calendar day an 8pm nag was sent for each checkpoint,
+    // so it fires once per day (not once per cron tick) until checked.
+    day4LastFollowupSent: { type: Date, default: null },
+    day7LastFollowupSent: { type: Date, default: null },
   },
   { timestamps: true }
 );
